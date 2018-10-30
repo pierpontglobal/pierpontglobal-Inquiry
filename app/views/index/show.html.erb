@@ -1,0 +1,154 @@
+<div class="main_bg">
+  <form id="car_form" autocomplete="off">
+  <div class="centered_holder">
+
+    <div class="logo_holder">
+      <img class="logo" src="/logo.png">
+    </div>
+
+    <select id="year" required class="form_dropdown" id="year" title="year">
+      <option value="" disabled selected>Year</option>
+      <% time_set = Time.now.year + 2 %>
+      <% ((time_set-40)...time_set).reverse_each do |year| %>
+        <option value="<%= year %>"><%= year %></option>
+      <% end %>
+    </select>
+
+    <input required id="maker" type="text" name="maker" placeholder="Maker" class="form_input">
+
+    <input required id="model" type="text" name="model" placeholder="Model" class="form_input">
+
+    <input class="btn-success" type="submit">
+
+  </div>
+
+
+  </form>
+
+  <div class="remodal" data-remodal-id="modal">
+    <button data-remodal-action="close" class="remodal-close"></button>
+    <h1>Let us get to you with those results</h1>
+
+    <form id="user_info">
+      <div class="row" style="display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap">
+        <div style="width: 42.5%; margin: 10px 2.5% 0 5%;">
+          <input id="name" required style="width: 100%" type="text" class="form-control" placeholder="First name">
+        </div>
+        <div style="width: 42.5%; margin: 10px 5% 0 2.5%;">
+          <input id="surname" required style="width: 100%" type="text" class="form-control" placeholder="Last name">
+        </div>
+
+        <div style="width: 100%; margin: 10px 5% 0;">
+          <input id="email" required style="width: 100%" type="email" class="form-control" placeholder="Email">
+        </div>
+      </div>
+      <br>
+      <button data-remodal-action="cancel" class="remodal-cancel">CANCEL</button>
+      <button type="submit" class="remodal-confirm">SEND</button>
+    </form>
+
+  </div>
+
+  <a id="modal_button" data-remodal-target="modal" style="display: none">Call the modal with data-remodal-id="modal"</a>
+
+  <script>
+
+      $('#car_form').submit(function(e) {
+          e.preventDefault();
+          $('#modal_button').trigger( "click" );
+
+      });
+
+      $('#user_info').submit(function(e) {
+          e.preventDefault();
+
+          $.ajax({
+              url: '/send_car_data',
+              method: 'post',
+              dataType: 'json',
+              data: {
+                  name: document.getElementById('name').value,
+                  surname: document.getElementById('surname').value,
+                  email: document.getElementById('email').value,
+                  year: $('#year').find(":selected").text(),
+                  maker: document.getElementById('maker').value,
+                  model: document.getElementById('model').value,
+              },
+              success: function (data) {
+                  document.location.href = '/?state=success'
+              },
+              error: function (data) {
+                  document.location.href = '/?state=error'
+              }
+          });
+
+      });
+
+    function send_form() {
+        console.log("sent");
+        return false;
+    }
+
+      function get_makers() {
+          var xmlhttp = new XMLHttpRequest();
+          var url = "https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=csv";
+          let set_back = 1;
+          let makers = [];
+
+          xmlhttp.onreadystatechange = function () {
+              if (this.readyState == 3 && this.status == 200) {
+                  var myArr = this.responseText;
+                  set_back = iterate_lines(myArr, set_back, decode_maker, makers);
+              }
+
+              if (this.readyState == 4) {
+                  autocomplete(document.getElementById("maker"), makers);
+              }
+          };
+
+          xmlhttp.open("GET", url, true);
+          xmlhttp.send();
+      }
+
+      get_makers();
+
+      function iterate_lines(text, local_set_back, callback, destiny) {
+          let lines = text.split('\n');
+          for(let i = local_set_back; i < lines.length - 1; i++){
+              let maker = callback(lines[i]);
+              destiny.push(maker);
+          }
+          return lines.length - 1;
+      }
+
+      function decode_maker(line) {
+          return line.split(',')[1].replace('\"', '').replace('\"', '');
+      }
+
+      function decode_model(line){
+          return line.split(',')[3].replace('\"', '').replace('\"', '');
+      }
+
+      function set_maker(maker) {
+          let set_back = 1;
+          models = [];
+          var xmlhttp = new XMLHttpRequest();
+          var url = "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/"+ maker +"?format=csv";
+
+          xmlhttp.onreadystatechange = function() {
+              if (this.readyState == 3 && this.status == 200) {
+                  var myArr = this.responseText;
+                  set_back = iterate_lines(myArr, set_back, decode_model, models);
+              }
+
+              if (this.readyState == 4) {
+                  autocomplete(document.getElementById("model"), models);
+              }
+          };
+
+          xmlhttp.open("GET", url, true);
+          xmlhttp.send();
+      }
+  </script>
+
+</div>
