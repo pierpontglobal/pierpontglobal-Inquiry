@@ -1,4 +1,7 @@
+<!-- INDEX -->
 <div class="main_bg">
+
+  <!-- Car info form -->
   <form id="car_form" autocomplete="off">
     <div class="centered_holder">
 
@@ -33,15 +36,18 @@
 
   </form>
 
+  <!-- User info modal -->
   <div class="remodal" data-remodal-id="modal">
     <button data-remodal-action="close" class="remodal-close"></button>
     <h1>Permítanos contactarle con esos resultados</h1>
 
+    <!-- User info form -->
     <form id="user_info">
       <div class="row" style="display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap">
         <div style="width: 42.5%; margin: 10px 2.5% 0 5%;">
           <input id="name" required style="width: 100%" type="text" class="form-control" placeholder="Nombres">
         </div>
+
         <div style="width: 42.5%; margin: 10px 5% 0 2.5%;">
           <input id="surname" required style="width: 100%" type="text" class="form-control" placeholder="Apellidos">
         </div>
@@ -62,14 +68,27 @@
 
   </div>
 
+  <!-- Opens the modal -->
   <a id="modal_button" data-remodal-target="modal" style="display: none">Call the modal with data-remodal-id="modal"</a>
 
   <script>
+      // Counts the number of models available for a maker on a given year
+      let counter = null;
+      let model_drop_down = document.getElementById('model');
+      let maker = '';
+      let year = '';
+
+      // Sets the position of a fixed element relative next to another
+      function set_position(element, base) {
+          element.style.top = base.getBoundingClientRect().top + 'px';
+          element.style.left = ($(base).position().left + base.offsetWidth + 10) + 'px';
+      }
+
+      // Creates counter element
       function add_counter(element) {
-          let counter = document.createElement('DIV');
+          counter = document.createElement('DIV');
           counter.style.position = 'absolute';
-          counter.style.top = element.getBoundingClientRect().top + 'px';
-          counter.style.left = ($(element).position().left + element.offsetWidth + 10) + 'px';
+          set_position(counter, element);
           counter.style.width = '90px';
           counter.style.height = '100px';
           counter.style.background = '#28a745';
@@ -82,14 +101,88 @@
           element.parentNode.appendChild(counter);
       }
 
-      add_counter(document.getElementById('model'));
+      // Add makers to the drop down list
+      function set_makers() {
+          $.ajax({
+              url: '/get_makers',
+              method: 'GET',
+              dataType: 'json',
+              data: {},
+              success: function (data) {
+                  let html_text = '<option value="" disabled selected>Fabricante</option>';
+                  for (let i = 0; i < data.length; i++) {
+                      html_text += '<option value="">' + data[i] + '</option>';
+                  }
+                  document.getElementById("maker").innerHTML = html_text;
+              }
+          });
+          return 'Request made'
+      }
 
+      // Enables or disables the model drop down.
+      function enable_model_field() {
+          year = $('#year').find(":selected").text();
+          maker = $('#maker').find(":selected").text();
+          if (year.length > 0 && maker.length > 0) {
+              let model = $('#model')[0];
+              model.classList.remove('disabled');
+              model.disabled = false;
+              model.value = '';
+              set_model(maker, year);
+              return true;
+          } else {
+              let model = $('#model')[0];
+              model.disabled = true;
+              model.classList.add('disabled');
+              return false;
+          }
+      }
+
+      // Add models to the drop down given the maker and the year.
+      function set_model(maker, year) {
+          $.ajax({
+              url: '/get_model?maker=' + maker + '&year=' + year,
+              method: 'GET',
+              dataType: 'json',
+              success: function (data) {
+                  let html_text = '<option value="" disabled selected>Modelo</option>';
+                  for (let i = 0; i < data.length; i++) {
+                      html_text += '<option value="">' + data[i] + '</option>';
+                  }
+                  document.getElementById("model").innerHTML = html_text;
+                  document.getElementById('digit').innerText = data.length;
+              }
+          });
+      }
+
+      // Initializers.
+      set_makers();
+      add_counter(model_drop_down);
+
+      // Handles the window resizing event for fixed elements.
+      window.onresize = function(event) {
+          if (counter != null) {
+              set_position(counter, model_drop_down);
+          }
+      };
+
+      // Listens when the year changes.
+      $('#year').on('change', function () {
+          enable_model_field();
+      });
+
+      // Listens when the maker changes.
+      $('#maker').on('change', function () {
+          enable_model_field();
+      });
+
+      // Listens when on submit car info.
       $('#car_form').submit(function (e) {
           e.preventDefault();
           $('#modal_button').trigger("click");
-
       });
 
+      // Listens when on submit user info.
       $('#user_info').submit(function (e) {
           e.preventDefault();
 
@@ -113,74 +206,7 @@
                   document.location.href = '/?state=error'
               }
           });
-
       });
-
-      let maker = '';
-      let year = '';
-
-      $('#year').on('change', function () {
-          enable_model_field();
-      });
-
-      $('#maker').on('change', function () {
-          enable_model_field();
-      });
-
-      function set_makers() {
-          $.ajax({
-              url: '/get_makers',
-              method: 'GET',
-              dataType: 'json',
-              data: {},
-              success: function (data) {
-                  let html_text = '<option value="" disabled selected>Fabricante</option>';
-                  for (let i = 0; i < data.length; i++) {
-                      html_text += '<option value="">' + data[i] + '</option>';
-                  }
-                  document.getElementById("maker").innerHTML = html_text;
-              }
-          });
-          return 'Request made'
-      }
-
-      function enable_model_field() {
-          year = $('#year').find(":selected").text();
-          maker = $('#maker').find(":selected").text();
-          if (year.length > 0 && maker.length > 0) {
-              let model = $('#model')[0];
-              model.classList.remove('disabled');
-              model.disabled = false;
-              model.value = '';
-              set_model(maker, year);
-              return true;
-          } else {
-              let model = $('#model')[0];
-              model.disabled = true;
-              model.classList.add('disabled');
-              return false;
-          }
-      }
-
-      function set_model(maker, year) {
-          $.ajax({
-              url: '/get_model?maker=' + maker + '&year=' + year,
-              method: 'GET',
-              dataType: 'json',
-              success: function (data) {
-                  let html_text = '<option value="" disabled selected>Modelo</option>';
-
-                  for (let i = 0; i < data.length; i++) {
-                      html_text += '<option value="">' + data[i] + '</option>';
-                  }
-
-                  document.getElementById("model").innerHTML = html_text;
-                  document.getElementById('digit').innerText = data.length;
-              }
-          });
-      }
-
-      set_makers();
   </script>
 
 </div>
