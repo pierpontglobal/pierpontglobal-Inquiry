@@ -1,0 +1,158 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree ../app/assets/stylesheets
+ *= require_self
+ */
+
+.main_bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: white;
+}
+
+.centered_holder {
+    width: 70%;
+    height: 100px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap
+}
+
+.logo_holder {
+    width: 100%;
+    height: 100px;
+    background: white;
+    border-radius: 50px;
+    margin: 40px auto 60px;
+    position: relative;
+}
+
+.logo {
+    min-width: 200px;
+    width: 30%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto
+}
+
+html {
+    background: #2E2F30
+}
+
+.form_dropdown {
+    min-width: 200px;
+    margin: 5px;
+    width: 30%;
+    text-align: center;
+    height: 102px;
+    border-color: black;
+    background: transparent;
+    color: black;
+    font-size: x-large
+}
+
+.form_input {
+    min-width: 200px;
+    margin: 5px;
+    border-radius: 5px;
+    width: 30%;
+    text-align: center;
+    height: 100px;
+    padding: 0;
+    border-color: black;
+    background: transparent;
+    color: black;
+    font-size: x-large;
+}
+
+* {
+    font-family: "Helvetica Neue", Helvetica, Arial, Sans-Serif;
+}
+
+body {
+    background: white;
+}
+
+.autocomplete {
+    /*the container must be positioned relative:*/
+    position: relative;
+    display: inline-block;
+}
+
+input {
+    border: 1px solid transparent;
+    background-color: #f1f1f1;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.autocomplete-items {
+    position: absolute;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    left: 0;
+    right: 0;
+}
+
+.autocomplete-items div {
+    border-radius: 10px;
+    padding: 10px;
+    width: 90%;
+    color: black;
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid black;
+    margin: 0 auto 10px;
+    left: 0;
+    right: 0;
+}
+
+.autocomplete-items div:hover {
+    /*when hovering an item:*/
+    background-color: lightgray;
+}
+
+.autocomplete-active {
+    /*when navigating through the items using the arrow keys:*/
+    background-color: lightgray !important;
+    color: black;
+}
+
+#makerautocomplete-list {
+    top: 125px;
+}
+
+.btn-success {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 20px;
+}
+
+.disabled {
+    border-color: gray;
+}

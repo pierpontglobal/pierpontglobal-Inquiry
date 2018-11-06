@@ -1,50 +1,63 @@
 <div class="main_bg">
   <form id="car_form" autocomplete="off">
-  <div class="centered_holder">
+    <div class="centered_holder">
 
-    <div class="logo_holder">
-      <img class="logo" src="/logo.png">
+      <div class="logo_holder">
+        <img class="logo" src="/logo.png">
+      </div>
+
+      <p style="width: 100%; text-align: center">
+        Introduzca el carro que busca, luego precione siguiente
+      </p>
+
+      <select id="year" required class="form_dropdown" id="year" title="year">
+        <option value="" disabled selected>Año</option>
+        <% time_set = Time.now.year + 2 %>
+        <% ((time_set - 7)...time_set).reverse_each do |year| %>
+          <option value="<%= year %>"><%= year %></option>
+        <% end %>
+      </select>
+
+      <select required id="maker" name="maker" class="form_dropdown" title="maker">
+        <option value="" disabled selected>Fabricante</option>
+      </select>
+
+      <select disabled required id="model" name="model" class="form_dropdown disabled" title="model">
+        <option value="" disabled selected>Modelo</option>
+      </select>
+
+      <input class="btn-success" type="submit" value="Siguiente" style="border-radius: 20px">
+
     </div>
-
-    <select id="year" required class="form_dropdown" id="year" title="year">
-      <option value="" disabled selected>Year</option>
-      <% time_set = Time.now.year + 2 %>
-      <% ((time_set-40)...time_set).reverse_each do |year| %>
-        <option value="<%= year %>"><%= year %></option>
-      <% end %>
-    </select>
-
-    <input required id="maker" type="text" name="maker" placeholder="Maker" class="form_input">
-
-    <input required id="model" type="text" name="model" placeholder="Model" class="form_input">
-
-    <input class="btn-success" type="submit">
-
-  </div>
 
 
   </form>
 
   <div class="remodal" data-remodal-id="modal">
     <button data-remodal-action="close" class="remodal-close"></button>
-    <h1>Let us get to you with those results</h1>
+    <h1>Permítanos contactarle con esos resultados</h1>
 
     <form id="user_info">
       <div class="row" style="display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap">
         <div style="width: 42.5%; margin: 10px 2.5% 0 5%;">
-          <input id="name" required style="width: 100%" type="text" class="form-control" placeholder="First name">
+          <input id="name" required style="width: 100%" type="text" class="form-control" placeholder="Nombres">
         </div>
         <div style="width: 42.5%; margin: 10px 5% 0 2.5%;">
-          <input id="surname" required style="width: 100%" type="text" class="form-control" placeholder="Last name">
+          <input id="surname" required style="width: 100%" type="text" class="form-control" placeholder="Apellidos">
+        </div>
+
+        <div style="width: 100%; margin: 10px 5% 0;">
+          <input id="phone" required style="width: 100%" type="text" class="form-control" placeholder="Número de telefono">
         </div>
 
         <div style="width: 100%; margin: 10px 5% 0;">
           <input id="email" required style="width: 100%" type="email" class="form-control" placeholder="Email">
         </div>
+
       </div>
       <br>
-      <button data-remodal-action="cancel" class="remodal-cancel">CANCEL</button>
-      <button type="submit" class="remodal-confirm">SEND</button>
+      <button data-remodal-action="cancel" class="remodal-cancel">CANCELAR</button>
+      <button type="submit" class="remodal-confirm">ENVIAR</button>
     </form>
 
   </div>
@@ -52,14 +65,32 @@
   <a id="modal_button" data-remodal-target="modal" style="display: none">Call the modal with data-remodal-id="modal"</a>
 
   <script>
+      function add_counter(element) {
+          let counter = document.createElement('DIV');
+          counter.style.position = 'absolute';
+          counter.style.top = element.getBoundingClientRect().top + 'px';
+          counter.style.left = ($(element).position().left + element.offsetWidth + 10) + 'px';
+          counter.style.width = '90px';
+          counter.style.height = '100px';
+          counter.style.background = '#28a745';
+          counter.style.borderBottomRightRadius = '20px';
+          counter.style.borderTopRightRadius = '20px';
+          counter.style.textAlign = 'center';
+          counter.style.color = 'white';
+          counter.innerHTML = '<span id="digit" style="font-size: 30pt">0</span><br><span style="font-size: x-small;">Models in year</span>';
 
-      $('#car_form').submit(function(e) {
+          element.parentNode.appendChild(counter);
+      }
+
+      add_counter(document.getElementById('model'));
+
+      $('#car_form').submit(function (e) {
           e.preventDefault();
-          $('#modal_button').trigger( "click" );
+          $('#modal_button').trigger("click");
 
       });
 
-      $('#user_info').submit(function(e) {
+      $('#user_info').submit(function (e) {
           e.preventDefault();
 
           $.ajax({
@@ -69,10 +100,11 @@
               data: {
                   name: document.getElementById('name').value,
                   surname: document.getElementById('surname').value,
+                  phone_number: document.getElementById('phone').value,
                   email: document.getElementById('email').value,
                   year: $('#year').find(":selected").text(),
-                  maker: document.getElementById('maker').value,
-                  model: document.getElementById('model').value,
+                  maker: $('#maker').find(":selected").text(),
+                  model: $('#model').find(":selected").text()
               },
               success: function (data) {
                   document.location.href = '/?state=success'
@@ -84,71 +116,71 @@
 
       });
 
-    function send_form() {
-        console.log("sent");
-        return false;
-    }
+      let maker = '';
+      let year = '';
 
-      function get_makers() {
-          var xmlhttp = new XMLHttpRequest();
-          var url = "https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=csv";
-          let set_back = 1;
-          let makers = [];
+      $('#year').on('change', function () {
+          enable_model_field();
+      });
 
-          xmlhttp.onreadystatechange = function () {
-              if (this.readyState == 3 && this.status == 200) {
-                  var myArr = this.responseText;
-                  set_back = iterate_lines(myArr, set_back, decode_maker, makers);
+      $('#maker').on('change', function () {
+          enable_model_field();
+      });
+
+      function set_makers() {
+          $.ajax({
+              url: '/get_makers',
+              method: 'GET',
+              dataType: 'json',
+              data: {},
+              success: function (data) {
+                  let html_text = '<option value="" disabled selected>Fabricante</option>';
+                  for (let i = 0; i < data.length; i++) {
+                      html_text += '<option value="">' + data[i] + '</option>';
+                  }
+                  document.getElementById("maker").innerHTML = html_text;
               }
-
-              if (this.readyState == 4) {
-                  autocomplete(document.getElementById("maker"), makers);
-              }
-          };
-
-          xmlhttp.open("GET", url, true);
-          xmlhttp.send();
+          });
+          return 'Request made'
       }
 
-      get_makers();
-
-      function iterate_lines(text, local_set_back, callback, destiny) {
-          let lines = text.split('\n');
-          for(let i = local_set_back; i < lines.length - 1; i++){
-              let maker = callback(lines[i]);
-              destiny.push(maker);
+      function enable_model_field() {
+          year = $('#year').find(":selected").text();
+          maker = $('#maker').find(":selected").text();
+          if (year.length > 0 && maker.length > 0) {
+              let model = $('#model')[0];
+              model.classList.remove('disabled');
+              model.disabled = false;
+              model.value = '';
+              set_model(maker, year);
+              return true;
+          } else {
+              let model = $('#model')[0];
+              model.disabled = true;
+              model.classList.add('disabled');
+              return false;
           }
-          return lines.length - 1;
       }
 
-      function decode_maker(line) {
-          return line.split(',')[1].replace('\"', '').replace('\"', '');
-      }
+      function set_model(maker, year) {
+          $.ajax({
+              url: '/get_model?maker=' + maker + '&year=' + year,
+              method: 'GET',
+              dataType: 'json',
+              success: function (data) {
+                  let html_text = '<option value="" disabled selected>Modelo</option>';
 
-      function decode_model(line){
-          return line.split(',')[3].replace('\"', '').replace('\"', '');
-      }
+                  for (let i = 0; i < data.length; i++) {
+                      html_text += '<option value="">' + data[i] + '</option>';
+                  }
 
-      function set_maker(maker) {
-          let set_back = 1;
-          models = [];
-          var xmlhttp = new XMLHttpRequest();
-          var url = "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/"+ maker +"?format=csv";
-
-          xmlhttp.onreadystatechange = function() {
-              if (this.readyState == 3 && this.status == 200) {
-                  var myArr = this.responseText;
-                  set_back = iterate_lines(myArr, set_back, decode_model, models);
+                  document.getElementById("model").innerHTML = html_text;
+                  document.getElementById('digit').innerText = data.length;
               }
-
-              if (this.readyState == 4) {
-                  autocomplete(document.getElementById("model"), models);
-              }
-          };
-
-          xmlhttp.open("GET", url, true);
-          xmlhttp.send();
+          });
       }
+
+      set_makers();
   </script>
 
 </div>

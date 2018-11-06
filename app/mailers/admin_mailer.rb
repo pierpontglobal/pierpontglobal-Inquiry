@@ -3,9 +3,9 @@
 require 'sendgrid-ruby'
 class AdminMailer < ApplicationMailer
 
-  def send_car_user_info(name, surname, email, year, maker, model)
+  def send_car_user_info(name, surname, email, year, maker, model, phone_number)
     set_client
-    data = load_template(name, surname, email, year, maker, model)
+    data = load_template(name, surname, email, year, maker, model, phone_number)
     j_data = JSON.parse(data.to_json)
     response = @sg.client.mail._('send').post(request_body: j_data)
     response
@@ -15,17 +15,18 @@ class AdminMailer < ApplicationMailer
 
   # Fills a json formatted object with the required data to send a confirmation
   # email with the configured template at SendGrid.
-  def load_template(name, surname, email, year, maker, model)
+  def load_template(name, surname, email, year, maker, model, phone_number)
     { personalizations: [
       {
-        to: [email: 'hector@pierpontglobal.com'],
+        to: [email: 'support@pierpontglobal.com'],
         dynamic_template_data: {
           first_n: name,
           last_n: surname,
           year: year,
           maker: maker,
           model: model,
-          email: email
+          email: email,
+          phone_number: phone_number
         }
       }
     ], from: { email: 'support@pierpontglobal.com' },

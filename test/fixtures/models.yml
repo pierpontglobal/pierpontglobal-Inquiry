@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  maker: one
+  year: MyString
+  title: MyString
+
+two:
+  maker: two
+  year: MyString
+  title: MyString
