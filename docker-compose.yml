@@ -1,0 +1,22 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+  web:
+    build: .
+    hostname: CarInquiry
+    volumes:
+    - .:/produciton
+    ports:
+    - "3000:3000"
+    environment:
+      DB_USER: root
+      DB_PASS: admin
+      DATABASE_URL: mysql2://db
+      PORT: 3000
+      RAILS_ENV: production
+    depends_on:
+    - db
