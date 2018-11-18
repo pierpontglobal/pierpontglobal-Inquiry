@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+    - echo Installing dependencies
+    - bundle install
+    - bundle exec rails db:create
+    - bundle exec rails db:migrate
+  build:
+    commands:
+    - echo Starting import
+    - bundle exec rails populator:populate
+    - bundle exec rails populator:filter
+  post_build:
+    commands:
+    - echo Finished migrations
