@@ -18,7 +18,7 @@ module DataPopulator
   end
 
   def self.filter_availabilities
-    ActiveRecord::Base.connection.execute("DELETE FROM ConsultCar_development.models WHERE maker_id in (SELECT id FROM ConsultCar_development.makers where title in ('AC',
+    ActiveRecord::Base.connection.execute("DELETE FROM ConsultCar_production.models WHERE maker_id in (SELECT id FROM ConsultCar_production.makers where title in ('AC',
                                           'Allard','Alpine','Alvis','AMC','Ariel','Armstrong-siddeley','Ascan', 'Austin','Autobianchi','Auverland','Avanti','Berkeley','Bitter',
                                           'Bizzarrini','Brilliance','Bristol','Caterham','Checker','Chrysler','Dacia','Daf','Daihatsu','Daimler','De-Tomaso','Dkw','Donkenvoort',
                                           'Eagle','Fairthorpe','Gaz','Geely','Ginetta','Holden','Hudson','Humber','Innocenti','Italdesign','Jensen','Lada','Lancia','Lotec',
@@ -27,7 +27,7 @@ module DataPopulator
                                           'Seat','Simca','Singer','Skoda','Ssangyong','Steyr','Studebaker','Sunbeam','Tailbot','Tata','Tarta','Trabajant','Tvt','Vauxhall',
                                           'Vector','Venturi','Wartburg','Westfield','Willys-overland','Xedos','Zagato','Zastava','Zaz','Zil','Zenvo','Luxgen','Ssc','Model_make_id'))")
 
-    ActiveRecord::Base.connection.execute("DELETE FROM ConsultCar_development.makers WHERE title IN ('AC',
+    ActiveRecord::Base.connection.execute("DELETE FROM ConsultCar_production.makers WHERE title IN ('AC',
                                           'Allard','Alpine','Alvis','AMC','Ariel','Armstrong-siddeley','Ascan','Austin',
                                           'Autobianchi','Auverland','Avanti','Berkeley','Bitter','Bizzarrini','Brilliance',
                                           'Bristol','Caterham','Checker','Chrysler','Dacia','Daf','Daihatsu','Daimler',
